@@ -4,9 +4,19 @@
 
 int main() {
     Map map;
-    Point a(11,4), b(4,3), c(5,3), d(-2,5), e(-10,  -10);
-    std::vector<Point> vector = {a, b, c, d, e};
+    int targetCount;
+    std::cout << "Write targets count: " ;
+    std::cin >> targetCount;
+    std::vector<Point> vector;
+    for (int i = 0; i < targetCount; ++i) {
+        int x,y;
+        std::cout << "Target " << i << " :" << std::endl;
+        std::cin >> x >> y;
+        std::cout << std::endl;
+        vector.emplace_back(x,y);
+    }
     map.setTargets(vector);
-    std::cout <<     map.getBestAngle() << std::endl;
+
+    std::cout << "Angle: " << map.getAngle(1.0) << " degrees." << std::endl;
     return 0;
 }

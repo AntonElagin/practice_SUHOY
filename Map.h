@@ -13,14 +13,11 @@ class Map {
 private:
     int targetsCount;
     std::vector<Point> targets;
-    std::vector<Point> quaters[5];
-    bool quater;
     double k;
 public:
     Map();
     void setTargets(const std::vector<Point>& _targets);
-    double getBestAngle();
-    bool getQuater();
+    double getAngle(double _angleStep);
 };
 
 

@@ -2,66 +2,66 @@
 // Created by anton1202 on 20.07.2020.
 //
 
+#include <math.h>
 #include "Map.h"
 #include "MathFunc.h"
-#include "Quarter.h"
 
 
 void Map::setTargets(const std::vector<Point>& _targets) {
     this->targets = _targets;
     this->targetsCount = _targets.size();
-    for (const auto& point : this->targets) {
-        if ( MathFunc::isInCircle(point.getX(), point.getY())) {
-            this->quaters[4].push_back(point);
-        } else if ( point.getX() * point.getY() > 0 ) {
-            if (point.getX() > 0) {
-                this->quaters[0].push_back(point);
-            } else {
-                this->quaters[2].push_back(point);
-            }
-        } else {
-            if (point.getX() > 0) {
-                this->quaters[1].push_back(point);
-            } else {
-                this->quaters[3].push_back(point);
-            }
-        }
-    }
-}
-
-double Map::getBestAngle() {
-    double cover[4];
-    double angle[4];
-    for (int i =0; i < 4; i++) {
-        cover[0] = 0;
-            angle[0] = 0;
-    }
-    int min = 0;
-    int max =90;
-    for (int i = 0; i < 4; i++) {
-        Quarter quarter;
-        quarter.setTargets(this->quaters[i]);
-        quarter.setAngles(0,90,1);
-        cover[i] = quarter.getCover();
-        angle[i] = quarter.getK();
-    }
-    double a = std::max(cover[0], cover[1]);
-    double b = std::max(cover[2], cover[3]);
-    if (a > b) {
-        this->k = (cover[0] > cover[1]) ? angle[0] : angle[1];
-        this->quater = true;
-    } else {
-        this->k = (cover[2] > cover[3]) ? angle[2] : angle[3];
-        this->quater = false;
-    }
-    return this->k;
-}
-
-bool Map::getQuater() {
-    return this->quater;
 }
 
 Map::Map() {
     return;
+}
+
+double Map::getAngle(double _angleStep) {
+    double minAngle = 0;
+    double maxAngle = 359;
+    double angleStep = _angleStep;
+    int cover =0;
+    this->k = 0;
+    for (double i = minAngle + angleStep; i < maxAngle;  i += angleStep) {
+        const double k = tan(i * 3.14 / 180);
+        int targetsCount = 0;
+        for (const auto& target: this->targets) {
+            if (i == 0 || i == 180) {
+                if (i == 0) {
+                    if ( target.getX() > 0 && ( target.getY() > -10 || target.getY() < -10 )) {
+                        targetsCount +=1;
+                    }
+                } else {
+                    if ( target.getX() < 0 && ( target.getY() > -10 || target.getY() < -10 )) {
+                        targetsCount +=1;
+                    }
+                }
+            } else
+                if (i < 180) {
+                    if (
+                            MathFunc::funcTop(target.getX(), k) >= target.getY()
+                            && MathFunc::funcDown(target.getX(), k) <= target.getY()
+                            && MathFunc::funcInvert(target.getX(), k) <= target.getY()
+                            ) {
+                        targetsCount += 1;
+
+                    }
+                } else {
+                    if (
+                            MathFunc::funcTop(target.getX(), k) >= target.getY()
+                            && MathFunc::funcDown(target.getX(), k) <= target.getY()
+                            && MathFunc::funcInvert(target.getX(), k) >= target.getY()
+                    ) {
+                        targetsCount += 1;
+                    }
+                }
+        }
+
+        if (targetsCount > cover) {
+            cover = targetsCount;
+            this->k = i;
+        }
+    }
+    return this->k;
 }
 
